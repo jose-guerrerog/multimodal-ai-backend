@@ -32,10 +32,15 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 @app.get("/")
 async def root():
     return {
-        "message": f"Welcome to {settings.PROJECT_NAME}",
-        "version": settings.VERSION,
-        "docs": "/docs",
-        "api": settings.API_V1_STR
+        "status": "healthy",
+        "message": "AI Vision Hub API",
+        "version": "1.0.0",
+        "endpoints": {
+            "health": "/health",
+            "image_analysis": "/api/v1/images/analyze",
+            "text_analysis": "/api/v1/text/analyze",
+            "chat": "/api/v1/chat/message"
+        }
     }
 
 # For development only
