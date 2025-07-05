@@ -216,7 +216,6 @@ tmp/
 *.pdf
 *.doc
 *.docx
-*.txt
 *.csv
 *.xlsx
 *.zip
