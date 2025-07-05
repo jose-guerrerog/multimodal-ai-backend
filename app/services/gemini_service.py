@@ -12,8 +12,8 @@ class GeminiService:
         """Initialize Gemini service"""
         try:
             genai.configure(api_key=settings.GOOGLE_API_KEY)
-            self.text_model = genai.GenerativeModel('gemini-pro')
-            self.vision_model = genai.GenerativeModel('gemini-pro-vision')
+            self.text_model = genai.GenerativeModel('gemini-1.5-flash')
+            self.vision_model = genai.GenerativeModel('gemini-1.5-flash')
             logger.info("Gemini service initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize Gemini service: {e}")

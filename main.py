@@ -38,6 +38,7 @@ async def root():
         "api": settings.API_V1_STR
     }
 
+# For development only
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
