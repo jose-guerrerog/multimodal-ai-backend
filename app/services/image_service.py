@@ -1,11 +1,9 @@
 from fastapi import UploadFile
 from app.services.gemini_service import GeminiService
-from app.utils.file_utils import save_upload_file, cleanup_file
-from app.utils.image_utils import prepare_image_for_gemini, get_image_info
-from app.utils.validators import validate_image_file
 from app.models.responses import ImageAnalysisResponse
 from app.core.logging import get_logger
 import time
+import json
 
 logger = get_logger(__name__)
 
@@ -14,30 +12,28 @@ class ImageService:
         self.gemini_service = GeminiService()
     
     async def analyze_uploaded_image(self, file: UploadFile) -> ImageAnalysisResponse:
-        """Process and analyze uploaded image"""
+        """Process and analyze uploaded image (no file saving)"""
         start_time = time.time()
-        file_path = None
         
         try:
-            # Validate file
-            validate_image_file(file)
+            # Validate file type
+            allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+            if file.content_type not in allowed_types:
+                raise Exception("Invalid file type. Please upload JPEG, PNG, or WebP images.")
             
-            # Save file temporarily
-            file_path = await save_upload_file(file)
+            # Validate file size (10MB max)
+            max_size = 10 * 1024 * 1024
+            if file.size and file.size > max_size:
+                raise Exception("File too large. Maximum size is 10MB.")
             
-            # Get image info
-            image_info = get_image_info(file_path)
+            # Read file content directly (no saving to disk)
+            await file.seek(0)
+            image_data = await file.read()
             
-            # Prepare for Gemini
-            image_data = prepare_image_for_gemini(file_path)
-            
-            # Analyze with Gemini
+            # Analyze with Gemini Vision
             analysis_result = await self.gemini_service.analyze_image_with_vision(
                 image_data, file.content_type
             )
-            
-            # Add image info to analysis
-            analysis_result["image_info"] = image_info
             
             processing_time = f"{time.time() - start_time:.2f}s"
             
@@ -49,7 +45,14 @@ class ImageService:
                 file_size=file.size
             )
             
-        finally:
-            # Always cleanup temporary file
-            if file_path:
-                cleanup_file(file_path)
+        except Exception as e:
+            logger.error(f"Image analysis failed: {e}")
+            processing_time = f"{time.time() - start_time:.2f}s"
+            
+            return ImageAnalysisResponse(
+                success=False,
+                filename=file.filename or "unknown.jpg",
+                analysis={"error": str(e)},
+                processing_time=processing_time,
+                file_size=file.size
+            )

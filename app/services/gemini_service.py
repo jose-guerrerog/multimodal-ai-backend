@@ -37,9 +37,9 @@ class GeminiService:
             }
             
             prompt = """
-            Analyze this image comprehensively and provide a detailed JSON response with:
+            Analyze this image comprehensively and provide a detailed JSON response:
             {
-                "description": "Detailed description of what you see",
+                "description": "Detailed description of what you see in the image",
                 "objects": ["list", "of", "detected", "objects"],
                 "colors": ["dominant", "colors", "present"],
                 "text_detected": "any visible text in the image",
@@ -57,7 +57,18 @@ class GeminiService:
             
         except Exception as e:
             logger.error(f"Image analysis failed: {e}")
-            raise AIServiceException(f"Image analysis failed: {str(e)}")
+            # Return a structured error response
+            return {
+                "description": f"Analysis failed: {str(e)}",
+                "objects": [],
+                "colors": [],
+                "text_detected": "",
+                "mood": "unknown",
+                "composition": "",
+                "suggestions": "Please try again",
+                "confidence": 0.0,
+                "error": str(e)
+            }
     
     async def analyze_text_sentiment(self, text: str) -> Dict[str, Any]:
         """Analyze text sentiment"""

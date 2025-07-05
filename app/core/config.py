@@ -17,7 +17,12 @@ class Settings(BaseSettings):
     ALLOWED_IMAGE_TYPES: List[str] = ["image/jpeg", "image/png", "image/webp"]
     
     # CORS Settings
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "https://*.vercel.app",
+        "https://*.onrender.com"
+    ]
     
     # Rate Limiting
     REQUESTS_PER_MINUTE: int = 15
